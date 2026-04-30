@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SecureKernel — A user-friendly system call interface with role-based authentication, real-time audit logging, and security analytics.">
+  <title>SecureKernel — System Call Security Interface</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+
+  <!-- Kernel Flash Effect -->
+  <div id="kernel-flash" class="kernel-flash"></div>
+
+  <!-- ═══ LOGIN SCREEN ═══ -->
+  <div id="login-screen">
+    <div class="login-bg">
+      <div class="orb"></div>
+      <div class="orb"></div>
+      <div class="orb"></div>
+    </div>
+    <div class="login-card">
+      <div class="logo"><span class="icon">🛡️</span> SecureKernel</div>
+      <p class="subtitle">Authenticated System Call Interface</p>
+      <form id="login-form" autocomplete="off">
+        <div class="form-group">
+          <label for="login-username">Username</label>
+          <input type="text" id="login-username" placeholder="Enter username" required autofocus>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="login-btn" id="login-submit">Authenticate</button>
+        <div id="login-error" class="login-error"></div>
+      </form>
+      <div class="login-hint">
+        <strong>Demo Credentials:</strong>
+        <table>
+          <tr><td>root / toor</td><td>— Full access</td></tr>
+          <tr><td>admin / admin123</td><td>— Admin access</td></tr>
+          <tr><td>user / user123</td><td>— Standard user</td></tr>
+          <tr><td>guest / guest</td><td>— Read-only</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN APPLICATION ═══ -->
+  <div id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand"><span class="icon">🛡️</span> <span>SecureKernel</span></div>
+      <nav>
+        <a class="nav-item active" data-section="overview"><span class="icon">📊</span> <span>Overview</span></a>
+        <a class="nav-item" data-section="terminal"><span class="icon">💻</span> <span>Terminal</span></a>
+        <a class="nav-item" data-section="reference"><span class="icon">📖</span> <span>Syscall Ref</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" data-section="logs"><span class="icon">📋</span> <span>Audit Logs</span></a>
+        <a class="nav-item" data-section="analytics"><span class="icon">📈</span> <span>Analytics</span></a>
+        <div class="nav-divider"></div>
+        <a class="nav-item" data-section="settings"><span class="icon">⚙️</span> <span>Settings</span></a>
+      </nav>
+      <div class="user-panel">
+        <div class="user-avatar">U</div>
+        <div class="user-info">
+          <div class="name">User</div>
+          <div class="role">role</div>
+        </div>
+        <button class="logout-btn" title="Logout">⏻</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- ── Overview Section ── -->
+      <div id="section-overview" class="section active">
+        <div class="page-header">
+          <h1>🛡️ Security Dashboard</h1>
+          <div class="session-info"><span class="status-dot"></span> Session Active</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card cyan">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Total Syscalls</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-value" id="stat-allowed">0</div>
+            <div class="stat-label">Allowed</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-value" id="stat-denied">0</div>
+            <div class="stat-label">Denied</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-value" id="stat-threats">0</div>
+            <div class="stat-label">Security Alerts</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-title">📡 Live Activity Feed</div>
+          <div id="activity-feed" style="max-height:300px;overflow-y:auto;font-family:var(--font-mono);font-size:0.82rem"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🔑 Quick Access — Your Permissions</div>
+          <div id="overview-perms"></div>
+        </div>
+      </div>
+
+      <!-- ── Terminal Section ── -->
+      <div id="section-terminal" class="section">
+        <div class="page-header"><h1>💻 System Call Terminal</h1></div>
+        <div id="terminal-container" class="terminal-container">
+          <div class="terminal-header">
+            <span class="terminal-dot r"></span>
+            <span class="terminal-dot y"></span>
+            <span class="terminal-dot g"></span>
+            <span class="terminal-title">kernel@securesys — bash</span>
+          </div>
+          <div class="terminal-body"></div>
+          <div class="terminal-input-row">
+            <span class="terminal-prompt">user@kernel $</span>
+            <input type="text" class="terminal-input" placeholder="Type a syscall or 'help'..." spellcheck="false" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Syscall Reference Section ── -->
+      <div id="section-reference" class="section">
+        <div class="page-header"><h1>📖 System Call Reference</h1></div>
+        <div id="ref-container" class="ref-grid"></div>
+      </div>
+
+      <!-- ── Audit Logs Section ── -->
+      <div id="section-logs" class="section">
+        <div class="page-header"><h1>📋 Audit Logs</h1></div>
+        <div class="card">
+          <div class="log-controls">
+            <select id="log-filter-user"><option value="">All Users</option><option value="root">root</option><option value="admin">admin</option><option value="user">user</option><option value="guest">guest</option></select>
+            <select id="log-filter-category"><option value="">All Categories</option><option value="file">File I/O</option><option value="process">Process</option><option value="memory">Memory</option><option value="network">Network</option><option value="device">Device</option><option value="security">Security</option></select>
+            <select id="log-filter-status"><option value="">All Status</option><option value="allowed">Allowed</option><option value="denied">Denied</option></select>
+            <select id="log-filter-severity"><option value="">All Severity</option><option value="INFO">Info</option><option value="WARNING">Warning</option><option value="CRITICAL">Critical</option></select>
+            <input type="text" id="log-search" placeholder="Search logs...">
+            <button class="btn primary" id="log-apply-filters">🔍 Filter</button>
+            <button class="btn" id="log-export">📥 Export CSV</button>
+            <button class="btn danger" id="log-clear">🗑️ Clear</button>
+          </div>
+          <div class="log-table-wrap">
+            <table class="log-table">
+              <thead><tr><th>ID</th><th>Time</th><th>User</th><th>Role</th><th>Syscall</th><th>Category</th><th>Status</th><th>Severity</th><th>Details</th></tr></thead>
+              <tbody id="logs-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Analytics Section ── -->
+      <div id="section-analytics" class="section">
+        <div class="page-header"><h1>📈 Security Analytics</h1></div>
+        <div class="charts-grid">
+          <div class="card"><div class="card-title">📊 Syscalls by Category</div><canvas id="chart-categories" class="chart-canvas"></canvas></div>
+          <div class="card"><div class="card-title">🎯 Allow / Deny Ratio</div><canvas id="chart-status" class="chart-canvas"></canvas></div>
+          <div class="card"><div class="card-title">📈 Activity Timeline</div><canvas id="chart-timeline" class="chart-canvas"></canvas></div>
+          <div class="card"><div class="card-title">👥 Activity by User</div><canvas id="chart-users" class="chart-canvas"></canvas></div>
+        </div>
+      </div>
+
+      <!-- ── Settings Section ── -->
+      <div id="section-settings" class="section">
+        <div class="page-header"><h1>⚙️ Settings</h1></div>
+        <div class="card">
+          <div class="settings-group">
+            <h3>Security</h3>
+            <div class="setting-row">
+              <div><label>Log Denied Attempts</label><br><span>Record all permission denials in audit log</span></div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><label>Kernel Flash Effect</label><br><span>Visual flash on syscall execution</span></div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><label>Session Timeout</label><br><span>Auto-logout after 30 minutes of inactivity</span></div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="settings-group">
+            <h3>Interface</h3>
+            <div class="setting-row">
+              <div><label>Terminal Sound Effects</label><br><span>Play sounds on syscall execution</span></div>
+              <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><label>Auto-scroll Activity Feed</label><br><span>Automatically scroll to newest events</span></div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Permission Denied Modal -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal" id="permission-modal">
+      <h3>⛔ Permission Denied</h3>
+      <p>System call <strong class="modal-syscall"></strong> was blocked.</p>
+      <p class="modal-reason" style="color:var(--danger);font-family:var(--font-mono);font-size:0.82rem"></p>
+      <button class="btn primary" id="modal-close">Understood</button>
+    </div>
+  </div>
+
+  <!-- Scripts (order matters) -->
+  <script src="js/auth.js"></script>
+  <script src="js/rbac.js"></script>
+  <script src="js/syscalls.js"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/app.js"></script>
+
+  <style>
+    /* Activity feed item styling */
+    .activity-item {
+      display: flex; gap: 12px; align-items: center;
+      padding: 8px 12px; border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .activity-item:hover { background: var(--bg-glass); }
+    .activity-time { color: var(--text-muted); font-size: 0.78rem; min-width: 70px; }
+    .activity-user { color: var(--accent); min-width: 60px; }
+    .activity-call { color: var(--text-primary); flex: 1; }
+    .activity-status { font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+    .activity-status.status-allowed { background: rgba(16,185,129,0.12); color: var(--success); }
+    .activity-status.status-denied { background: rgba(239,68,68,0.12); color: var(--danger); }
+  </style>
+</body>
+</html>
